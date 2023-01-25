@@ -3,12 +3,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TentacleGroupScript : MonoBehaviour
 {
     public float slamDelay;
     public float attackDelay;
+    public float timeBetweenSlams;
+    public float timeBetweenAttacks;
+    public float tentacleRaiseTime;
 
     private GameObject tentacleL;
     private GameObject tentacleM;
@@ -20,7 +24,10 @@ public class TentacleGroupScript : MonoBehaviour
     private TentacleHitterScript hitterScriptM;
     private TentacleHitterScript hitterScriptR;
 
+    private bool tentaclesIdle = true;
+    private bool tentaclesRaised = false;
     private bool tentaclesRised = false;
+    private int numberOfAttackPatterns = 3;
     private void Start()
     {
         tentacleL = GameObject.FindGameObjectWithTag("TentacleL");
@@ -40,8 +47,18 @@ public class TentacleGroupScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.T))
         {
-            StartBattle();
+            StartCoroutine("StartBattle");
         }
+    }
+
+    public void SetTentaclesRaisedTrue()
+    {
+        tentaclesRaised = true;
+    }
+
+    public void SetTentaclesRaisedFalse()
+    {
+        tentaclesRaised = false;
     }
 
     public void RaiseTentacles()
@@ -49,6 +66,8 @@ public class TentacleGroupScript : MonoBehaviour
         movementScriptL.RaiseTentacle();
         movementScriptM.RaiseTentacle();
         movementScriptR.RaiseTentacle();
+
+        Invoke("SetTentaclesRaisedTrue", 3);
     }
 
     public void SlamTentacleL()
@@ -65,23 +84,42 @@ public class TentacleGroupScript : MonoBehaviour
         hitterScriptR.SlamTentacle();
     }
 
-    public void Attack1()
+    public IEnumerator StartBattle()
     {
-        StartCoroutine(Timer(SlamTentacleL, slamDelay));
-        StartCoroutine(Timer(SlamTentacleM, slamDelay));
-        StartCoroutine(Timer(SlamTentacleR, slamDelay));
+        if (!tentaclesRaised)
+        {
+            RaiseTentacles();
+        }
+
+        StartCoroutine("Attack");
+        yield return new WaitForSeconds(tentacleRaiseTime);
+        StartCoroutine("StartBattle");
     }
 
-    public void StartBattle()
+    // TODO: Make it so when a tentacle is destroyed, it cant attack anymore (or doesnt crash the game)
+     public IEnumerator Attack()
     {
-        RaiseTentacles();
-        Attack1();
-    }
+        yield return new WaitForSeconds(timeBetweenAttacks);
 
-    // TODO
-    IEnumerator Timer(System.Action action, float time)
-    {
-        action();
-        yield return new WaitForSeconds(time);
+        System.Random random = new System.Random();
+        int number = random.Next(1, numberOfAttackPatterns + 1);
+
+        switch (number)
+        {
+            case 1:
+                SlamTentacleL();
+                break;
+
+            case 2:
+                SlamTentacleM();
+                break;
+
+            case 3:
+                SlamTentacleR();
+                break;
+
+            default:
+                break;
+        }
     }
 }

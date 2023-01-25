@@ -16,6 +16,7 @@ public class TentacleHitterMovementScript : MonoBehaviour
     private float slamRotation = 90f;
     private Vector3 currentPosition;
     private TentacleHitterScript hitterScript;
+    private bool tentacleIdle = true;
 
     // Takes the starting position of the tentacle
     private void Start()
@@ -26,6 +27,8 @@ public class TentacleHitterMovementScript : MonoBehaviour
 
     public void SlamTentacle()
     {
+        tentacleIdle = false;
+
         if (!(currentRotation >= slamRotation))
         {
             gameObject.transform.Rotate(slamTick, 0, 0);
@@ -67,9 +70,16 @@ public class TentacleHitterMovementScript : MonoBehaviour
         }
         else
         {
-            // Resets the collider
+            // Resets the collider and sets tentacleIdle to true
             hitterScript.SetColliderIsTriggerFalse();
             hitterScript.SetColliderEnabledFalse();
+
+            tentacleIdle = true;
         }
+    }
+
+    public bool getTentacleIdle()
+    {
+        return tentacleIdle;
     }
 }
