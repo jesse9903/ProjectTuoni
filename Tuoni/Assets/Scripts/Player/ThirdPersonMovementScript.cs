@@ -17,13 +17,19 @@ public class ThirdPersonMovementScript : MonoBehaviour
     public PlayerCombatScript combatScript;
     public Collider playerCollider;
     public float moveSpeed = 6f;
+    public float attackMoveSpeed = 3f;
     public float jumpForce = 2f;
     public float dashSpeed = 1000f;
     public float dashDelay = 1f;
     public float jumpDelay = 1f;
     public float dashDuration = 1f;
+    public float squishTime;
+
+    // Test
+    public bool jumpAllowed;
 
     private Vector2 moveInput;
+    private bool movementDisabled = false;
     private bool canJump = true;
     private bool canMove = true;
     private bool canDash = true;
@@ -43,32 +49,38 @@ public class ThirdPersonMovementScript : MonoBehaviour
         moveInput.y = Input.GetAxisRaw("Vertical");
         moveInput.Normalize();
 
-        // Moves if canMove == true
-        if (canMove)
+        // Moves if canMove is true
+        if (canMove && !movementDisabled)
         {
+            if (!combatScript.isAttacking)
+            {
+                rb.velocity = new Vector3(moveInput.x * moveSpeed, rb.velocity.y, moveInput.y * moveSpeed);
+            }
+            else
+            {
+                rb.velocity = new Vector3(moveInput.x * attackMoveSpeed, rb.velocity.y, moveInput.y * attackMoveSpeed);
+            }
+
             // Sets the value of animator speed to movement input
             animator.SetFloat("Speed X", Mathf.Abs(moveInput.x));
-            animator.SetFloat("Speed Z", Mathf.Abs(moveInput.y));
-
-            rb.velocity = new Vector3(moveInput.x * moveSpeed, rb.velocity.y, moveInput.y * moveSpeed);
+            animator.SetFloat("Speed Z", moveInput.y);
 
             // Checks which direction the player is moving when either W, A, S or D key is down
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A))
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A))
             {
                 moveDirection = CheckMoveDirection();
-
                 RotatePlayer();
             }
         }
 
         // Jump
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (Input.GetKeyDown(KeyCode.Space) && canJump && jumpAllowed)
         {
             Jump();
         }
 
         // Roll
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled)
         {
             Dash();
         }
@@ -152,25 +164,29 @@ public class ThirdPersonMovementScript : MonoBehaviour
         }
     }
 
-    // Rotates players collider and attack point (doesn't affect the sprite or the shadow)
+    // Rotates players collider and attack point (doesn't rotate sprite if direction is north or south)
     private void RotatePlayer()
     {
         switch (moveDirection)
         {
             case "NE":
                 playerCollider.transform.eulerAngles = new Vector3(0, 135, 0);
+                spriteRotator.RotateToEast();
                 break;
 
             case "NW":
                 playerCollider.transform.eulerAngles = new Vector3(0, 45, 0);
+                spriteRotator.RotateToWest();
                 break;
 
             case "SE":
                 playerCollider.transform.eulerAngles = new Vector3(0, -135, 0);
+                spriteRotator.RotateToEast();
                 break;
 
             case "SW":
                 playerCollider.transform.eulerAngles = new Vector3(0, -45, 0);
+                spriteRotator.RotateToWest();
                 break;
 
             case "N":
@@ -224,5 +240,31 @@ public class ThirdPersonMovementScript : MonoBehaviour
         {
             canJump = false;
         }
+    }
+
+    public void Squish()
+    {
+        // Disables the movement, enables it after squishTime
+        SetMovementDisabledTrue();
+
+        // Stops the player
+        rb.velocity = Vector3.zero;
+
+        Invoke("SetMovementDisabledFalse", squishTime);
+
+        // Trigger players squished-animation
+        GetComponentInChildren<Animator>().SetBool("Squished", true);
+    }
+
+    public void SetMovementDisabledTrue()
+    {
+        movementDisabled = true;
+    }
+
+    public void SetMovementDisabledFalse()
+    {
+        movementDisabled = false;
+
+        gameObject.GetComponentInChildren<Animator>().SetBool("Squished", false);
     }
 }

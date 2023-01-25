@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    public int health = 100;
+    private HealthScript healthComponent;
+    private Animator animator;
 
-    // Start is called before the first frame update
     void Start()
     {
-        
+        animator = gameObject.GetComponent<Animator>();
+        healthComponent = gameObject.GetComponent<HealthScript>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TakeDamage(int damage)
     {
-        
+        // Deals damage to player and updates the current health
+        healthComponent.TakeDamage(damage);
     }
 }

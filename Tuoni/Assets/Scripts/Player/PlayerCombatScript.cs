@@ -10,8 +10,9 @@ public class PlayerCombatScript : MonoBehaviour
     public float attackRange = 0.5f;
     public int attackDamage = 40;
     public float attackRate = 2f;
-    private bool canAttack = true;
+    public bool isAttacking = false;
 
+    private bool canAttack = true;
     private float nextAttackTime = 0f;
 
     private void Start()
@@ -29,6 +30,8 @@ public class PlayerCombatScript : MonoBehaviour
             {
                 Attack();
                 nextAttackTime= Time.time + 1f / attackRate;
+
+                isAttacking = true;
             }
         }
     }
@@ -46,9 +49,14 @@ public class PlayerCombatScript : MonoBehaviour
             // Goes through the list of enemies that were hit, and deals damage to them
             foreach (Collider enemy in enemiesHit)
             {
-                enemy.GetComponent<EnemyHealthScript>().TakeDamage(attackDamage);
+                enemy.GetComponent<HealthScript>().TakeDamage(attackDamage);
             }
         }
+    }
+
+    public void EndAttack()
+    {
+        isAttacking = false;
     }
 
     // Debug
@@ -62,8 +70,8 @@ public class PlayerCombatScript : MonoBehaviour
     public void SetCanAttackTrue()
     {
         canAttack = true;
-    
-    }public void SetCanAttackFalse()
+    }
+    public void SetCanAttackFalse()
     {
         canAttack = false;
     }
