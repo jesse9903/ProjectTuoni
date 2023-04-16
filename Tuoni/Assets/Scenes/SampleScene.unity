@@ -743,11 +743,7 @@ MonoBehaviour:
   attackDelay: 5
   timeBetweenSlams: 3
   timeBetweenAttacks: 2
-  idleTime: 2
   tentacleRaiseTime: 3
-  slamAttack1_Duration: 0
-  slamAttack2_Duration: 0
-  slamAttack3_Duration: 0
 --- !u!1 &618202438
 GameObject:
   m_ObjectHideFlags: 0
@@ -1763,6 +1759,7 @@ GameObject:
   - component: {fileID: 1203651964}
   - component: {fileID: 1203651966}
   - component: {fileID: 1203651967}
+  - component: {fileID: 1203651968}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -1802,17 +1799,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1203651964}
   animator: {fileID: 1019098917}
-  dashVelocity: {x: 0, y: 0, z: 0}
   combatScript: {fileID: 1203651966}
   playerCollider: {fileID: 2053195610}
   moveSpeed: 10
   attackMoveSpeed: 3
   jumpForce: 3
-  dashSpeed: 5
+  lightDashSpeed: 10
+  mediumDashSpeed: 3
+  heavyDashSpeed: 0
+  mediumDashDropMultiplier: 3
+  mediumDashMin: 2
   dashDelay: 1
   jumpDelay: 1
   dashDuration: 0.1
   squishTime: 2
+  armorWeightInt: 1
   jumpAllowed: 0
 --- !u!54 &1203651964
 Rigidbody:
@@ -1865,6 +1866,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   destroyDelay: 5
+--- !u!114 &1203651968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1203651959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0839fc67396fe424bbcb213442eeba44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightDashSpeed: 10
+  mediumDashSpeed: 10
+  heavyDashSpeed: 10
+  dashDelay: 1
+  dashDuration: 0.1
+  dashVelocity: {x: 0, y: 0, z: 0}
+  movementScript: {fileID: 0}
+  rb: {fileID: 0}
+  combatScript: {fileID: 0}
+  canDash: 1
 --- !u!1 &1261435035
 GameObject:
   m_ObjectHideFlags: 3

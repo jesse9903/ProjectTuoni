@@ -11,19 +11,40 @@ using UnityEngine.InputSystem.XR;
 
 public class ThirdPersonMovementScript : MonoBehaviour
 {
+    private enum State
+    {
+        Normal,
+        LightDash,
+        MediumDash,
+        HeavyDash
+    }
+
+    private enum WeightClass
+    {
+        Light,
+        Medium,
+        Heavy
+    }
+
     public Rigidbody rb;
     public Animator animator;
-    public Vector3 dashVelocity;
     public PlayerCombatScript combatScript;
     public Collider playerCollider;
     public float moveSpeed = 6f;
     public float attackMoveSpeed = 3f;
     public float jumpForce = 2f;
-    public float dashSpeed = 1000f;
+    public float lightDashSpeed;
+    public float mediumDashSpeed;
+    public float heavyDashSpeed;
+    public float mediumDashDropMultiplier;
+    public float mediumDashMin;
     public float dashDelay = 1f;
     public float jumpDelay = 1f;
     public float dashDuration = 1f;
     public float squishTime;
+
+    // 1 = light, 2 = medium, 3 = heavy
+    public int armorWeightInt;
 
     // Test
     public bool jumpAllowed;
@@ -36,53 +57,89 @@ public class ThirdPersonMovementScript : MonoBehaviour
     private bool isJumping = false;
     private string moveDirection;
     private SpriteRotationScript spriteRotator;
+    private State state;
+    private WeightClass weightClass;
+    private Vector3 moveDirVector;
+    private float dashSpeed;
 
     private void Start()
     {
         spriteRotator = gameObject.GetComponentInChildren<SpriteRotationScript>();
+        CheckArmorClass();
+        state = State.Normal;
     }
 
     void Update()
     {
-        // Character movement
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
-        moveInput.Normalize();
-
-        // Moves if canMove is true
-        if (canMove && !movementDisabled)
+            switch (state)
         {
-            if (!combatScript.isAttacking)
-            {
-                rb.velocity = new Vector3(moveInput.x * moveSpeed, rb.velocity.y, moveInput.y * moveSpeed);
-            }
-            else
-            {
-                rb.velocity = new Vector3(moveInput.x * attackMoveSpeed, rb.velocity.y, moveInput.y * attackMoveSpeed);
-            }
+            case State.Normal:
 
-            // Sets the value of animator speed to movement input
-            animator.SetFloat("Speed X", Mathf.Abs(moveInput.x));
-            animator.SetFloat("Speed Z", moveInput.y);
+                // Character movement
+                moveInput.x = Input.GetAxisRaw("Horizontal");
+                moveInput.y = Input.GetAxisRaw("Vertical");
+                moveInput.Normalize();
 
-            // Checks which direction the player is moving when either W, A, S or D key is down
-            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A))
-            {
-                moveDirection = CheckMoveDirection();
-                RotatePlayer();
-            }
-        }
+                moveDirVector = new Vector3(rb.velocity.x, rb.velocity.y, rb.velocity.z);
 
-        // Jump
-        if (Input.GetKeyDown(KeyCode.Space) && canJump && jumpAllowed)
-        {
-            Jump();
-        }
+                // Moves if canMove is true
+                if (!movementDisabled)
+                {
+                    if (!combatScript.isAttacking)
+                    {
+                        rb.velocity = new Vector3(moveInput.x * moveSpeed, rb.velocity.y, moveInput.y * moveSpeed);
+                    }
+                    else
+                    {
+                        rb.velocity = new Vector3(moveInput.x * attackMoveSpeed, rb.velocity.y, moveInput.y * attackMoveSpeed);
+                    }
 
-        // Roll
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled)
-        {
-            Dash();
+                    // Sets the value of animator speed to movement input
+                    animator.SetFloat("Speed X", Mathf.Abs(moveInput.x));
+                    animator.SetFloat("Speed Z", moveInput.y);
+
+                    // Checks which direction the player is moving when either W, A, S or D key is down
+                    if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A))
+                    {
+                        moveDirection = CheckMoveDirection();
+                        RotatePlayer();
+                    }
+                }
+
+
+
+                // Jump
+                if (Input.GetKeyDown(KeyCode.Space) && canJump && jumpAllowed)
+                {
+                    Jump();
+                }
+
+                // Light Dash
+                if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled && (weightClass == WeightClass.Light))
+                {
+                    LightDash();
+                    dashSpeed = lightDashSpeed;
+                }
+                
+                // Medium Dash
+                if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled && (weightClass == WeightClass.Medium))
+                {
+                    MediumDash();
+                }
+
+                break;
+
+            case State.MediumDash:
+
+                float rollSpeedDropMultiplier = mediumDashDropMultiplier;
+                dashSpeed -= dashSpeed * rollSpeedDropMultiplier * Time.deltaTime;
+
+                float rollSpeedMinimum = mediumDashMin;
+                if (dashSpeed < rollSpeedMinimum)
+                {
+                    state = State.Normal;
+                }
+                break;
         }
     }
 
@@ -93,13 +150,11 @@ public class ThirdPersonMovementScript : MonoBehaviour
         canJump = false;
     }
 
-    public void Dash()
+    public void LightDash()
     {
-        dashVelocity.x = rb.velocity.x * dashSpeed;
-        dashVelocity.z = rb.velocity.z * dashSpeed;
-        dashVelocity.y = rb.velocity.y;
+        state = State.LightDash;
 
-        rb.AddForce(dashVelocity, ForceMode.Impulse);
+        rb.AddForce(moveDirVector * dashSpeed, ForceMode.Impulse);
 
         canDash = false;
 
@@ -111,12 +166,40 @@ public class ThirdPersonMovementScript : MonoBehaviour
 
         // Enables attacking after dash duration
         combatScript.Invoke("SetCanAttackTrue", dashDuration);
+
+        state = State.Normal;
+    }
+
+    public void MediumDash()
+    {
+        state = State.MediumDash;
+        dashSpeed = mediumDashSpeed;
+
+        canDash = false;
+
+        Invoke("DashDelay", dashDelay);
+    }
+
+    private void FixedUpdate()
+    {
+        switch (state)
+        {
+            case State.Normal:
+                break;
+
+            case State.MediumDash:
+                rb.velocity = moveDirVector * mediumDashSpeed;
+                break;
+        }
     }
 
     // Changes canDash to true (because Invoke-method needs a method)
     public void DashDelay()
     {
         canDash = true;
+
+        // DEBUG
+        Debug.Log("Dash ready");
     }
 
     // Changes canJump to true
@@ -266,5 +349,22 @@ public class ThirdPersonMovementScript : MonoBehaviour
         movementDisabled = false;
 
         gameObject.GetComponentInChildren<Animator>().SetBool("Squished", false);
+    }
+    
+    // Checks the armor weight class
+    public void CheckArmorClass()
+    {
+        switch (armorWeightInt)
+        {
+            case 1:
+                weightClass = WeightClass.Light;
+                break;
+            case 2:
+                weightClass = WeightClass.Medium;
+                break;
+            case 3:
+                weightClass = WeightClass.Heavy;
+                break;
+        }
     }
 }
