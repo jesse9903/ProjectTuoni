@@ -1,4 +1,5 @@
 // BUG: Kun menee kiinni viholliseen, k‰velee vihollista p‰in ja hypp‰‰ niin ei pysty hypp‰‰m‰‰n sen j‰lkeen
+// BUG: Kun dashaa ja hyˆkk‰‰ heti sen j‰lkeen, niin movement speed pysyy attack movement speediss‰
 
 using System.Collections;
 using System.Collections.Generic;
@@ -148,7 +149,6 @@ public class ThirdPersonMovementScript : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled && (weightClass == WeightClass.Light))
                 {
                     LightDash();
-                    dashSpeed = lightDashSpeed;
                 }
                 
                 // Medium Dash
@@ -190,6 +190,7 @@ public class ThirdPersonMovementScript : MonoBehaviour
     public void LightDash()
     {
         state = State.LightDash;
+        dashSpeed = lightDashSpeed;
 
         rb.AddForce(moveDirVector * dashSpeed, ForceMode.Impulse);
 

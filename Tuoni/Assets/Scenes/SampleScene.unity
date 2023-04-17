@@ -1817,7 +1817,7 @@ MonoBehaviour:
   jumpDelay: 1
   dashDuration: 0.1
   squishTime: 2
-  armorWeightInt: 1
+  armorWeightInt: 3
   jumpAllowed: 0
 --- !u!54 &1203651964
 Rigidbody:
