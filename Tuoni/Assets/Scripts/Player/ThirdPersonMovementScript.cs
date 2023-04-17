@@ -30,8 +30,12 @@ public class ThirdPersonMovementScript : MonoBehaviour
     public Animator animator;
     public PlayerCombatScript combatScript;
     public Collider playerCollider;
-    public float moveSpeed = 6f;
-    public float attackMoveSpeed = 3f;
+    public float lightMoveSpeed;
+    public float mediumMoveSpeed;
+    public float heavyMoveSpeed;
+    public float lightAttackMoveSpeed;
+    public float mediumAttackMoveSpeed;
+    public float heavyAttackMoveSpeed;
     public float jumpForce = 2f;
     public float lightDashSpeed;
     public float mediumDashSpeed;
@@ -87,11 +91,37 @@ public class ThirdPersonMovementScript : MonoBehaviour
                 {
                     if (!combatScript.isAttacking)
                     {
-                        rb.velocity = new Vector3(moveInput.x * moveSpeed, rb.velocity.y, moveInput.y * moveSpeed);
+                        switch (weightClass)
+                        {
+                            case WeightClass.Light:
+                                rb.velocity = new Vector3(moveInput.x * lightMoveSpeed, rb.velocity.y, moveInput.y * lightMoveSpeed);
+                                break;
+
+                            case WeightClass.Medium:
+                                rb.velocity = new Vector3(moveInput.x * mediumMoveSpeed, rb.velocity.y, moveInput.y * mediumMoveSpeed);
+                                break;
+
+                            case WeightClass.Heavy:
+                                rb.velocity = new Vector3(moveInput.x * heavyMoveSpeed, rb.velocity.y, moveInput.y * heavyMoveSpeed);
+                                break;
+                        }
                     }
                     else
                     {
-                        rb.velocity = new Vector3(moveInput.x * attackMoveSpeed, rb.velocity.y, moveInput.y * attackMoveSpeed);
+                        switch (weightClass)
+                        {
+                            case WeightClass.Light:
+                                rb.velocity = new Vector3(moveInput.x * lightAttackMoveSpeed, rb.velocity.y, moveInput.y * lightAttackMoveSpeed);
+                                break;
+
+                            case WeightClass.Medium:
+                                rb.velocity = new Vector3(moveInput.x * mediumAttackMoveSpeed, rb.velocity.y, moveInput.y * mediumAttackMoveSpeed);
+                                break;
+
+                            case WeightClass.Heavy:
+                                rb.velocity = new Vector3(moveInput.x * heavyAttackMoveSpeed, rb.velocity.y, moveInput.y * heavyAttackMoveSpeed);
+                                break;
+                        }
                     }
 
                     // Sets the value of animator speed to movement input
@@ -127,6 +157,12 @@ public class ThirdPersonMovementScript : MonoBehaviour
                     MediumDash();
                 }
 
+                // Medium Dash
+                if (Input.GetKeyDown(KeyCode.LeftShift) && !isJumping && canDash && !movementDisabled && (weightClass == WeightClass.Heavy))
+                {
+                    HeavyDash();
+                }
+
                 break;
 
             case State.MediumDash:
@@ -138,6 +174,7 @@ public class ThirdPersonMovementScript : MonoBehaviour
                 if (dashSpeed < rollSpeedMinimum)
                 {
                     state = State.Normal;
+                    combatScript.SetCanAttackTrue();
                 }
                 break;
         }
@@ -175,9 +212,28 @@ public class ThirdPersonMovementScript : MonoBehaviour
         state = State.MediumDash;
         dashSpeed = mediumDashSpeed;
 
+        // Disables attacking (enabling happens in fixed update)
+        combatScript.SetCanAttackFalse();
+
         canDash = false;
 
         Invoke("DashDelay", dashDelay);
+    }
+
+    public void HeavyDash()
+    {
+        state = State.HeavyDash;
+        dashSpeed = heavyDashSpeed;
+
+        rb.AddForce(moveDirVector * dashSpeed, ForceMode.Impulse);
+
+        canDash = false;
+
+        Invoke("DashDelay", dashDelay);
+
+        Debug.Log("Heavy");
+
+        state = State.Normal;
     }
 
     private void FixedUpdate()
@@ -189,6 +245,10 @@ public class ThirdPersonMovementScript : MonoBehaviour
 
             case State.MediumDash:
                 rb.velocity = moveDirVector * mediumDashSpeed;
+                break;
+
+            case State.HeavyDash:
+                rb.velocity = moveDirVector * heavyDashSpeed;
                 break;
         }
     }

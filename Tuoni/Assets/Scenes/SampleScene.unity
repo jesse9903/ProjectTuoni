@@ -1801,12 +1801,16 @@ MonoBehaviour:
   animator: {fileID: 1019098917}
   combatScript: {fileID: 1203651966}
   playerCollider: {fileID: 2053195610}
-  moveSpeed: 10
-  attackMoveSpeed: 3
+  lightMoveSpeed: 10
+  mediumMoveSpeed: 8
+  heavyMoveSpeed: 5
+  lightAttackMoveSpeed: 5
+  mediumAttackMoveSpeed: 3
+  heavyAttackMoveSpeed: 1
   jumpForce: 3
   lightDashSpeed: 10
   mediumDashSpeed: 3
-  heavyDashSpeed: 0
+  heavyDashSpeed: 3
   mediumDashDropMultiplier: 3
   mediumDashMin: 2
   dashDelay: 1
@@ -1878,16 +1882,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0839fc67396fe424bbcb213442eeba44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightDashSpeed: 10
-  mediumDashSpeed: 10
-  heavyDashSpeed: 10
-  dashDelay: 1
-  dashDuration: 0.1
-  dashVelocity: {x: 0, y: 0, z: 0}
-  movementScript: {fileID: 0}
-  rb: {fileID: 0}
-  combatScript: {fileID: 0}
-  canDash: 1
 --- !u!1 &1261435035
 GameObject:
   m_ObjectHideFlags: 3
