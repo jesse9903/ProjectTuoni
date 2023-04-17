@@ -20,7 +20,7 @@ public class ThirdPersonMovementScript : MonoBehaviour
         HeavyDash
     }
 
-    private enum WeightClass
+    public enum WeightClass
     {
         Light,
         Medium,
@@ -37,19 +37,17 @@ public class ThirdPersonMovementScript : MonoBehaviour
     public float lightAttackMoveSpeed;
     public float mediumAttackMoveSpeed;
     public float heavyAttackMoveSpeed;
-    public float jumpForce = 2f;
+    public float jumpForce;
     public float lightDashSpeed;
     public float mediumDashSpeed;
     public float heavyDashSpeed;
     public float mediumDashDropMultiplier;
     public float mediumDashMin;
-    public float dashDelay = 1f;
-    public float jumpDelay = 1f;
-    public float dashDuration = 1f;
+    public float dashDelay;
+    public float jumpDelay;
+    public float dashDuration;
     public float squishTime;
-
-    // 1 = light, 2 = medium, 3 = heavy
-    public int armorWeightInt;
+    public WeightClass weightClass;
 
     // Test
     public bool jumpAllowed;
@@ -62,15 +60,13 @@ public class ThirdPersonMovementScript : MonoBehaviour
     private bool isJumping = false;
     private string moveDirection;
     private SpriteRotationScript spriteRotator;
-    private State state;
-    private WeightClass weightClass;
     private Vector3 moveDirVector;
     private float dashSpeed;
+    private State state;
 
     private void Start()
     {
         spriteRotator = gameObject.GetComponentInChildren<SpriteRotationScript>();
-        CheckArmorClass();
         state = State.Normal;
     }
 
@@ -410,22 +406,5 @@ public class ThirdPersonMovementScript : MonoBehaviour
         movementDisabled = false;
 
         gameObject.GetComponentInChildren<Animator>().SetBool("Squished", false);
-    }
-    
-    // Checks the armor weight class
-    public void CheckArmorClass()
-    {
-        switch (armorWeightInt)
-        {
-            case 1:
-                weightClass = WeightClass.Light;
-                break;
-            case 2:
-                weightClass = WeightClass.Medium;
-                break;
-            case 3:
-                weightClass = WeightClass.Heavy;
-                break;
-        }
     }
 }

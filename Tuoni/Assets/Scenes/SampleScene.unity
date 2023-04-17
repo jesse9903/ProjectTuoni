@@ -1759,7 +1759,6 @@ GameObject:
   - component: {fileID: 1203651964}
   - component: {fileID: 1203651966}
   - component: {fileID: 1203651967}
-  - component: {fileID: 1203651968}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -1817,7 +1816,7 @@ MonoBehaviour:
   jumpDelay: 1
   dashDuration: 0.1
   squishTime: 2
-  armorWeightInt: 3
+  weightClass: 0
   jumpAllowed: 0
 --- !u!54 &1203651964
 Rigidbody:
@@ -1852,9 +1851,15 @@ MonoBehaviour:
   enemyLayers:
     serializedVersion: 2
     m_Bits: 64
-  attackRange: 0.52
-  attackDamage: 40
-  attackRate: 2
+  lightAttackRange: 1
+  mediumAttackRange: 1
+  heavyAttackRange: 1
+  lightAttackDamage: 20
+  mediumAttackDamage: 40
+  heavyAttackDamage: 80
+  lightAttackRate: 5
+  mediumAttackRate: 3
+  heavyAttackRate: 1
   isAttacking: 0
 --- !u!114 &1203651967
 MonoBehaviour:
@@ -1870,18 +1875,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   destroyDelay: 5
---- !u!114 &1203651968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1203651959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0839fc67396fe424bbcb213442eeba44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1261435035
 GameObject:
   m_ObjectHideFlags: 3
