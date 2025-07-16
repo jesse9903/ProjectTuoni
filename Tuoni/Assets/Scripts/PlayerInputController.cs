@@ -8,10 +8,15 @@ public class PlayerInputController : InputController
 {
     private PlayerInputActions inputActions;
 
+    private void OnEnable()
+    {
+        // Enable the input actions
+        inputActions = new PlayerInputActions();
+        inputActions.Enable();
+    }
+
     public override Vector2 GetMoveInput(GameObject gameObject)
     {
-        inputActions = new PlayerInputActions();
-
         return inputActions.PlayerDefault.Movement.ReadValue<Vector2>();
     }
 }

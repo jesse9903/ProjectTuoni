@@ -383,7 +383,7 @@
 "Assets/Scripts/CanTakeDamageInterface.cs"
 "Assets/Scripts/CharacterClass.cs"
 "Assets/Scripts/InputController.cs"
-"Assets/Scripts/Movement.cs"
+"Assets/Scripts/MovementController.cs"
 "Assets/Scripts/PlayerClass.cs"
 "Assets/Scripts/PlayerInputActions.cs"
 "Assets/Scripts/PlayerInputController.cs"
