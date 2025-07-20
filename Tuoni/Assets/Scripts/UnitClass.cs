@@ -13,12 +13,7 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
     [SerializeField] private SpriteRenderer sprite;
     [SerializeField] private UnitStateMachine stateMachine;
     [SerializeField] private UnitAnimationController animationController;
-    [SerializeField] private UnitStats stats;
-
-        // Should this be moved to character class?
-    [SerializeField] private InputController inputController;
-
-
+    private UnitStats stats;
     // Start is called before the first frame update
     void Start()
     {
@@ -48,7 +43,7 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
         }
         if (sprite == null)
         {
-            Debug.LogError($": Sprite not assigned.");
+            // Debug.LogError($": Sprite not assigned.");
         }
         // if (unitCollider == null)
         // {
@@ -136,19 +131,6 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
     {
         get { return hitBox; }
         set { hitBox = value; }
-    }
-
-       public InputController InputController
-    {
-        get { return inputController; }
-        set { inputController = value; }
-    }
-
-
-       public UnitStats Stats
-    {
-        get { return stats; }
-        set { stats = value; }
     }
 
     public Rigidbody2D RigidBody

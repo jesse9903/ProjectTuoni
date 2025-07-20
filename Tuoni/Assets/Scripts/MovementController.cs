@@ -18,13 +18,13 @@ public class MovementController : MonoBehaviour
         // Initialize fields
         rb2d = GetComponent<Rigidbody2D>();
         CharacterClass characterClass = GetComponent<CharacterClass>();
-        unitStats = characterClass.Stats;
+        unitStats = GetComponent<UnitStats>();
         input = characterClass.InputController;
     }
 
     private void Update()
     {
-        inputDirection = input.GetMoveInput(gameObject);
+        // inputDirection = input.GetMoveInput(gameObject);
 
         // Change current state
         if (inputDirection.magnitude > 0)
