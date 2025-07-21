@@ -35,6 +35,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""TakeDamage"",
+                    ""type"": ""Button"",
+                    ""id"": ""403890b8-ba01-4423-89fc-4482407b3bd9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -92,6 +101,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9e55bb9c-cb11-4ca2-9600-a438f6d2b2ce"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TakeDamage"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -101,6 +121,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         // PlayerDefault
         m_PlayerDefault = asset.FindActionMap("PlayerDefault", throwIfNotFound: true);
         m_PlayerDefault_Movement = m_PlayerDefault.FindAction("Movement", throwIfNotFound: true);
+        m_PlayerDefault_TakeDamage = m_PlayerDefault.FindAction("TakeDamage", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -163,11 +184,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_PlayerDefault;
     private List<IPlayerDefaultActions> m_PlayerDefaultActionsCallbackInterfaces = new List<IPlayerDefaultActions>();
     private readonly InputAction m_PlayerDefault_Movement;
+    private readonly InputAction m_PlayerDefault_TakeDamage;
     public struct PlayerDefaultActions
     {
         private @PlayerInputActions m_Wrapper;
         public PlayerDefaultActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_PlayerDefault_Movement;
+        public InputAction @TakeDamage => m_Wrapper.m_PlayerDefault_TakeDamage;
         public InputActionMap Get() { return m_Wrapper.m_PlayerDefault; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -180,6 +203,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
+            @TakeDamage.started += instance.OnTakeDamage;
+            @TakeDamage.performed += instance.OnTakeDamage;
+            @TakeDamage.canceled += instance.OnTakeDamage;
         }
 
         private void UnregisterCallbacks(IPlayerDefaultActions instance)
@@ -187,6 +213,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
             @Movement.canceled -= instance.OnMovement;
+            @TakeDamage.started -= instance.OnTakeDamage;
+            @TakeDamage.performed -= instance.OnTakeDamage;
+            @TakeDamage.canceled -= instance.OnTakeDamage;
         }
 
         public void RemoveCallbacks(IPlayerDefaultActions instance)
@@ -207,5 +236,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     public interface IPlayerDefaultActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnTakeDamage(InputAction.CallbackContext context);
     }
 }

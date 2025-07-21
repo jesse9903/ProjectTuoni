@@ -12,6 +12,7 @@ public class MovementController : MonoBehaviour
     [SerializeField, Range(0f, 100f)] private float Acceleration = 35f;
     [SerializeField] private InputController inputController;
 
+    private bool movementEnabled = true;
     private Vector2 moveDirection;
     private float acceleration = 15f;
     private Vector2 inputDirection;
@@ -28,26 +29,44 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
-        inputDirection = inputController.GetMoveInput(gameObject);
+        if (movementEnabled)
+        {
+            inputDirection = inputController.GetMoveInput(gameObject);
 
-        // Change current state
-        if (inputDirection.magnitude > 0)
-        {
-            unitClass.CurrentState = UnitClass.UnitState.Moving;
-        }
-        else
-        {
-            unitClass.CurrentState = UnitClass.UnitState.Idle;
+            // Change current state
+            if (inputDirection.magnitude > 0)
+            {
+                unitClass.CurrentState = UnitClass.UnitState.Moving;
+            }
+            else
+            {
+                unitClass.CurrentState = UnitClass.UnitState.Idle;
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        // Move the character
-        velocity = rb2d.velocity;
-        velocity = Vector2.Lerp(velocity, (inputDirection * moveSpeed) * moveSpeedMultiplier, Acceleration * Time.fixedDeltaTime);
-        rb2d.velocity = velocity;
+        if (movementEnabled)
+        {
+            // Move the character
+            velocity = rb2d.velocity;
+            velocity = Vector2.Lerp(velocity, (inputDirection * moveSpeed) * moveSpeedMultiplier, Acceleration * Time.fixedDeltaTime);
+            rb2d.velocity = velocity;
+        }
+    }
 
+    public void EnableMovement()
+    {
+        movementEnabled = true;
+    }
+
+    public void DisableMovement()
+    {
+        // Stop movement
+        rb2d.velocity = Vector2.zero;
+        
+        movementEnabled = false;
     }
     
     // Getters and Setters for all private variables

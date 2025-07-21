@@ -25,7 +25,6 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     {
         Idle, Moving, Attacking, TakeDamage, Invulnerable, Dead
     }
-    [SerializeField] private UnitState currentState = UnitState.Idle;
 
     [Header("Combat")]
     [SerializeField] private int maxHealth = 100;
@@ -33,10 +32,12 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     [SerializeField] private float attackDamageMultiplier = 1f;
     [SerializeField] private float criticalHitChance = 1f;
     [SerializeField] private float criticalHitMultiplier = 1.5f;
-    private int currentHealt;
+    private UnitState currentState = UnitState.Idle;
+    private int currentHealth;
     private int previousHealth;
     private float invulnerabilityDuration;
     private UnityEngine.Object lastDamagedBy;
+    private MovementController movementController;
 
     // Start is called before the first frame update
     void Start()
@@ -56,14 +57,20 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         sprite = GetComponent<SpriteRenderer>();
         unitCollider = GetComponent<Collider2D>();
         hitBox = GetComponent<Collider2D>();
-        stateMachine = GetComponent<UnitStateMachine>();
         animationController = GetComponent<UnitAnimationController>();
+        movementController = GetComponent<MovementController>();
+        currentHealth = maxHealth;
+
+        if (unitName == "")
+        {
+            unitName = gameObject.name;
+        }
 
         // Check if components are assigned
-        if (rigidBody == null)
-        {
-            Debug.LogError($": Rigid body not assigned.");
-        }
+            if (rigidBody == null)
+            {
+                Debug.LogError($": Rigid body not assigned.");
+            }
         if (sprite == null)
         {
             // Debug.LogError($": Sprite not assigned.");
@@ -89,23 +96,38 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     public void TakeDamage(int dmg, Object dmgDealtBy)
     {
 
-        previousHealth = currentHealt;
+        previousHealth = currentHealth;
         lastDamagedBy = dmgDealtBy;
+        currentState = UnitState.TakeDamage;
 
         CalculateHealth(dmg);
 
         TakeDamageEffect();
-        // TODO: Add damage effect
+
+        if (currentHealth <= 0)
+        {
+            OnDeath();
+        }
+        else
+        {
+            TakeDamageEffect();
+            currentState = UnitState.Idle;
+        }
+
     }
 
     public void CalculateHealth(int dmg)
     {
-        currentHealt = -dmg;
+        currentHealth -= dmg;
     }
 
     public void OnDeath()
     {
         // Add animation and change state to dead
+        currentState = UnitState.Dead;
+        rigidBody.isKinematic = true;
+        movementController.DisableMovement();
+        
     }
 
     // Make a cool damage effect
@@ -218,10 +240,10 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         set => criticalHitMultiplier = value;
     }
 
-    public int CurrentHealt
+    public int CurrentHealth
     {
-        get => currentHealt;
-        set => currentHealt = value;
+        get => currentHealth;
+        set => currentHealth = value;
     }
 
     public int PreviousHealth
