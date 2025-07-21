@@ -377,8 +377,7 @@ MonoBehaviour:
   sprite: {fileID: 737788052}
   stateMachine: {fileID: 0}
   animationController: {fileID: 0}
-  stats: {fileID: 0}
-  inputController: {fileID: 0}
+  inputController: {fileID: 11400000, guid: b826d3b2209391e4da6e9266590a3b18, type: 2}
 --- !u!4 &1517633225
 Transform:
   m_ObjectHideFlags: 0

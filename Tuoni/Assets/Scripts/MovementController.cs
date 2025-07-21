@@ -24,7 +24,7 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
-        // inputDirection = input.GetMoveInput(gameObject);
+        inputDirection = input.GetMoveInput(gameObject);
 
         // Change current state
         if (inputDirection.magnitude > 0)
