@@ -3,17 +3,41 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
-public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
+public abstract class UnitClass : MonoBehaviour, DamageableInterface
 {
 
-     [Header("Components")]
+    [Header("Components")]
     [SerializeField] private Collider2D hitBox;
     [SerializeField] private Rigidbody2D rigidBody;
     [SerializeField] private Collider2D unitCollider;
     [SerializeField] private SpriteRenderer sprite;
     [SerializeField] private UnitStateMachine stateMachine;
     [SerializeField] private UnitAnimationController animationController;
-    private UnitStats stats;
+
+    [Header("General")]
+    [SerializeField] private string unitName;
+    public enum UnitAlignment
+    {
+        Player, Neutral, Enemy
+    }
+    [SerializeField] private UnitAlignment alignment;
+    public enum UnitState
+    {
+        Idle, Moving, Attacking, TakeDamage, Invulnerable, Dead
+    }
+    [SerializeField] private UnitState currentState = UnitState.Idle;
+
+    [Header("Combat")]
+    [SerializeField] private int maxHealth = 100;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackDamageMultiplier = 1f;
+    [SerializeField] private float criticalHitChance = 1f;
+    [SerializeField] private float criticalHitMultiplier = 1.5f;
+    private int currentHealt;
+    private int previousHealth;
+    private float invulnerabilityDuration;
+    private UnityEngine.Object lastDamagedBy;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +58,6 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
         hitBox = GetComponent<Collider2D>();
         stateMachine = GetComponent<UnitStateMachine>();
         animationController = GetComponent<UnitAnimationController>();
-        stats = GetComponent<UnitStats>();
 
         // Check if components are assigned
         if (rigidBody == null)
@@ -61,17 +84,13 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
         // {
         //     Debug.LogError($": Animation controller not assigned.");
         // }
-        if (stats == null)
-        {
-            Debug.LogError($": Unit stats not assigned.");
-        }
     }
 
     public void TakeDamage(int dmg, Object dmgDealtBy)
     {
 
-        stats.PreviousHealth = stats.CurrentHealt;
-        stats.LastDamagedBy = dmgDealtBy;
+        previousHealth = currentHealt;
+        lastDamagedBy = dmgDealtBy;
 
         CalculateHealth(dmg);
 
@@ -81,7 +100,7 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
 
     public void CalculateHealth(int dmg)
     {
-        stats.CurrentHealt = -dmg;
+        currentHealt = -dmg;
     }
 
     public void OnDeath()
@@ -126,41 +145,113 @@ public abstract class UnitClass : MonoBehaviour, CanTakeDamageInterface
         //currentState = UnitState.Idle; // Return to Idle state
     }
 
-    // Getters and Setters for all private fields
+    // Getters and Setters for all private variables
     public Collider2D HitBox
     {
-        get { return hitBox; }
-        set { hitBox = value; }
+        get => hitBox;
+        set => hitBox = value;
     }
 
     public Rigidbody2D RigidBody
     {
-        get { return rigidBody; }
-        set { rigidBody = value; }
+        get => rigidBody;
+        set => rigidBody = value;
     }
 
     public Collider2D UnitCollider
     {
-        get { return unitCollider; }
-        set { unitCollider = value; }
+        get => unitCollider;
+        set => unitCollider = value;
     }
 
     public SpriteRenderer Sprite
     {
-        get { return sprite; }
-        set { sprite = value; }
+        get => sprite;
+        set => sprite = value;
     }
 
     public UnitStateMachine StateMachine
     {
-        get { return stateMachine; }
-        set { stateMachine = value; }
+        get => stateMachine;
+        set => stateMachine = value;
     }
 
     public UnitAnimationController AnimationController
     {
-        get { return animationController; }
-        set { animationController = value; }
+        get => animationController;
+        set => animationController = value;
+    }
+
+    public string UnitName
+    {
+        get => unitName;
+        set => unitName = value;
+    }
+
+    public int MaxHealth
+    {
+        get => maxHealth;
+        set => maxHealth = value;
+    }
+
+    public int AttackDamage
+    {
+        get => attackDamage;
+        set => attackDamage = value;
+    }
+
+    public float AttackDamageMultiplier
+    {
+        get => attackDamageMultiplier;
+        set => attackDamageMultiplier = value;
+    }
+
+    public float CriticalHitChance
+    {
+        get => criticalHitChance;
+        set => criticalHitChance = value;
+    }
+
+    public float CriticalHitMultiplier
+    {
+        get => criticalHitMultiplier;
+        set => criticalHitMultiplier = value;
+    }
+
+    public int CurrentHealt
+    {
+        get => currentHealt;
+        set => currentHealt = value;
+    }
+
+    public int PreviousHealth
+    {
+        get => previousHealth;
+        set => previousHealth = value;
+    }
+
+    public float InvulnerabilityDuration
+    {
+        get => invulnerabilityDuration;
+        set => invulnerabilityDuration = value;
+    }
+
+    public Object LastDamagedBy
+    {
+        get => lastDamagedBy;
+        set => lastDamagedBy = value;
+    }
+
+    public object Alignment
+    {
+        get => alignment;
+        set => alignment = (UnitAlignment)value;
+    }
+
+    public object CurrentState
+    {
+        get => currentState;
+        set => currentState = (UnitState)value;
     }
 
 }

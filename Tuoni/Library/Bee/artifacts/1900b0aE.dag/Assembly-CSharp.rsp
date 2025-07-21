@@ -379,9 +379,8 @@
 "Assets/Old stuff/Scripts/Player/ThirdPersonMovementScript.cs"
 "Assets/Old stuff/Scripts/SpriteBillboard.cs"
 "Assets/Scripts/AIInputController.cs"
-"Assets/Scripts/AIInputScript.cs"
-"Assets/Scripts/CanTakeDamageInterface.cs"
 "Assets/Scripts/CharacterClass.cs"
+"Assets/Scripts/DamageableInterface.cs"
 "Assets/Scripts/InputController.cs"
 "Assets/Scripts/MovementController.cs"
 "Assets/Scripts/PlayerClass.cs"
@@ -390,7 +389,6 @@
 "Assets/Scripts/UnitAnimationController.cs"
 "Assets/Scripts/UnitClass.cs"
 "Assets/Scripts/UnitStateMachine.cs"
-"Assets/Scripts/UnitStats.cs"
 -langversion:9.0
 
 /deterministic

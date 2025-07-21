@@ -5,8 +5,6 @@ using UnityEngine;
 public abstract class CharacterClass : UnitClass
 {
 
-    [SerializeField] private InputController inputController;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -19,9 +17,4 @@ public abstract class CharacterClass : UnitClass
         
     }
 
-    public InputController InputController
-    {
-        get { return inputController; }
-        set { inputController = value; }
-    }
 }

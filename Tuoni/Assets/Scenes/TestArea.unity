@@ -309,7 +309,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1517633225}
   - component: {fileID: 1517633224}
-  - component: {fileID: 1517633226}
   - component: {fileID: 1517633223}
   - component: {fileID: 1517633222}
   m_Layer: 0
@@ -358,7 +357,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f576c2270d1c854995f7fbeae1b4175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 10
+  moveSpeedMultiplier: 1
   Acceleration: 35
+  inputController: {fileID: 11400000, guid: b826d3b2209391e4da6e9266590a3b18, type: 2}
 --- !u!114 &1517633224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,7 +379,14 @@ MonoBehaviour:
   sprite: {fileID: 737788052}
   stateMachine: {fileID: 0}
   animationController: {fileID: 0}
-  inputController: {fileID: 11400000, guid: b826d3b2209391e4da6e9266590a3b18, type: 2}
+  unitName: 
+  alignment: 0
+  currentState: 0
+  maxHealth: 100
+  attackDamage: 10
+  attackDamageMultiplier: 1
+  criticalHitChance: 1
+  criticalHitMultiplier: 1.5
 --- !u!4 &1517633225
 Transform:
   m_ObjectHideFlags: 0
@@ -394,28 +403,6 @@ Transform:
   - {fileID: 737788051}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1517633226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1517633221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c0acc0f009759a42922b608e0d1a021, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitName: 
-  alignment: 0
-  currentState: 0
-  moveSpeed: 10
-  moveSpeedMultiplier: 1
-  maxHealth: 100
-  attackDamage: 10
-  attackDamageMultiplier: 1
-  criticalHitChance: 1
-  criticalHitMultiplier: 1.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
