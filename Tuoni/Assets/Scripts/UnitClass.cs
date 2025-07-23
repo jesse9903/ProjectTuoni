@@ -32,12 +32,22 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     [SerializeField] private float attackDamageMultiplier = 1f;
     [SerializeField] private float criticalHitChance = 1f;
     [SerializeField] private float criticalHitMultiplier = 1.5f;
+    [SerializeField] private bool invulnerable = false;
+    [SerializeField] private float attackDuration = 1; //sekuntia
+    [SerializeField] private float attackCooldown = 1; //sekuntia
+    [SerializeField] private float attackRange = 1;
+    [SerializeField] private Transform attackCircle;
+    [SerializeField] private LayerMask enemyMask;
+
     private UnitState currentState = UnitState.Idle;
     private int currentHealth;
     private int previousHealth;
     private float invulnerabilityDuration;
     private UnityEngine.Object lastDamagedBy;
     private MovementController movementController;
+    private bool canAttack = true;
+    private float attackDurationLeft;
+    private float attackCooldownLeft;
 
     // Start is called before the first frame update
     void Start()
@@ -45,9 +55,28 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     }
 
     // Update is called once per frame
-    void Update()
+    protected void Update()
     {
 
+        // Calculate attack duration & cooldown
+        if (canAttack == false)
+        {
+            if (attackDurationLeft > 0)
+            {
+                attackDurationLeft -= Time.deltaTime;
+            }
+            else if (attackCooldownLeft > 0)
+            {
+                attackCooldownLeft -= Time.deltaTime;
+            }
+            else
+            {
+                // FOR TESTING
+                Debug.Log("Attack enabled!");
+
+                canAttack = true;
+            }
+        }
     }
 
     void Awake()
@@ -93,45 +122,80 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         // }
     }
 
-    public void TakeDamage(int dmg, Object dmgDealtBy)
+    virtual public void TakeDamage(int dmg, Object dmgDealtBy)
     {
-
-        previousHealth = currentHealth;
-        lastDamagedBy = dmgDealtBy;
-        currentState = UnitState.TakeDamage;
-
-        CalculateHealth(dmg);
-
-        TakeDamageEffect();
-
-        if (currentHealth <= 0)
+        if (invulnerable == false && currentHealth > 0)
         {
-            OnDeath();
-        }
-        else
-        {
+            previousHealth = currentHealth;
+            lastDamagedBy = dmgDealtBy;
+            currentState = UnitState.TakeDamage;
+
+            CalculateHealth(dmg);
+
             TakeDamageEffect();
-            currentState = UnitState.Idle;
+
+            if (currentHealth <= 0)
+            {
+                OnDeath();
+            }
+            else
+            {
+                TakeDamageEffect();
+                currentState = UnitState.Idle;
+            }
         }
 
     }
 
-    public void CalculateHealth(int dmg)
+    virtual public void DealDamage()
+    {
+        if (canAttack)
+        {
+            int damage = CalculateDealtDamage();
+            Collider2D[] enemiesToDamage = Physics2D.OverlapCircleAll(attackCircle.position, attackRange);
+            for (int i = 0; i < enemiesToDamage.Length; i++)
+            {
+                enemiesToDamage[i].GetComponent<EnemyClass>().TakeDamage(damage, gameObject);
+            }
+
+            // FOR TESTING
+            Debug.Log("Attack disabled!");
+
+            attackDurationLeft = attackDuration;
+            attackCooldownLeft = attackCooldown;
+            canAttack = false;
+        }
+    }
+
+    // FOR TESTING
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackCircle.position, attackRange);
+    }
+
+    virtual protected void CalculateHealth(int dmg)
     {
         currentHealth -= dmg;
     }
 
-    public void OnDeath()
+    virtual protected int CalculateDealtDamage()
+    {
+        int damage = (int)(attackDamage * attackDamageMultiplier);
+        return damage;
+    }
+
+    virtual protected void OnDeath()
     {
         // Add animation and change state to dead
         currentState = UnitState.Dead;
         rigidBody.isKinematic = true;
         movementController.DisableMovement();
-        
+
     }
 
     // Make a cool damage effect
-    private IEnumerator TakeDamageEffect()
+    virtual protected IEnumerator TakeDamageEffect()
     {
         float duration = 0.1f; // Total duration of the lerp
         float elapsedTime = 0f;

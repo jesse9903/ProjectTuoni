@@ -12,8 +12,9 @@ public class PlayerClass : CharacterClass
     }
 
     // Update is called once per frame
-    void Update()
+    protected new void Update()
     {
-        
+        // Debug.Log("Player update called!");
+        base.Update();
     }
 }

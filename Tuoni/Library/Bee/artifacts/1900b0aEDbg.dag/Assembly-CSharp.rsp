@@ -381,6 +381,7 @@
 "Assets/Scripts/AIInputController.cs"
 "Assets/Scripts/CharacterClass.cs"
 "Assets/Scripts/DamageableInterface.cs"
+"Assets/Scripts/EnemyClass.cs"
 "Assets/Scripts/InputController.cs"
 "Assets/Scripts/MovementController.cs"
 "Assets/Scripts/PlayerClass.cs"
@@ -389,6 +390,7 @@
 "Assets/Scripts/UnitAnimationController.cs"
 "Assets/Scripts/UnitClass.cs"
 "Assets/Scripts/UnitStateMachine.cs"
+"Assets/TODO.cs"
 -langversion:9.0
 
 /deterministic

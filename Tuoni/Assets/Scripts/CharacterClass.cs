@@ -12,9 +12,10 @@ public abstract class CharacterClass : UnitClass
     }
 
     // Update is called once per frame
-    void Update()
+    protected new void Update()
     {
-        
+        // Debug.Log("Character update called!");
+        base.Update();
     }
 
 }

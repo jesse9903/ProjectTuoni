@@ -11,6 +11,7 @@ public class PlayerInputController : InputController
 
     // FOR TESTING
     private InputActionReference takeDamage;
+    private InputActionReference dealDamage;
     private PlayerClass playerClass;
     private GameObject obj;
 
@@ -23,7 +24,12 @@ public class PlayerInputController : InputController
         // FOR TESTING
         takeDamage = InputActionReference.Create(inputActions.PlayerDefault.TakeDamage);
         takeDamage.action.started += TakeDamage;
+        dealDamage = InputActionReference.Create(inputActions.PlayerDefault.DealDamage);
+        dealDamage.action.started += DealDamage;
+
+        
     }
+
 
     public override Vector2 GetMoveInput(GameObject gameObject)
     {
@@ -32,8 +38,15 @@ public class PlayerInputController : InputController
 
     private void TakeDamage(InputAction.CallbackContext context)
     {
-        obj = GameObject.Find("UnitTest");
+        obj = GameObject.FindGameObjectWithTag("Player");
         playerClass = obj.GetComponent<PlayerClass>();
         playerClass.TakeDamage(10, playerClass);
+    }
+
+    private void DealDamage(InputAction.CallbackContext context)
+    {
+        obj = GameObject.FindGameObjectWithTag("Player");
+        playerClass = obj.GetComponent<PlayerClass>();
+        playerClass.DealDamage();
     }
 }

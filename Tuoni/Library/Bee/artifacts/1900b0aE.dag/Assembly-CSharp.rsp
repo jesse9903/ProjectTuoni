@@ -381,6 +381,7 @@
 "Assets/Scripts/AIInputController.cs"
 "Assets/Scripts/CharacterClass.cs"
 "Assets/Scripts/DamageableInterface.cs"
+"Assets/Scripts/EnemyClass.cs"
 "Assets/Scripts/InputController.cs"
 "Assets/Scripts/MovementController.cs"
 "Assets/Scripts/PlayerClass.cs"
