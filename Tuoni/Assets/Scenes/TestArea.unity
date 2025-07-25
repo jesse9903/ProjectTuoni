@@ -630,7 +630,7 @@ MonoBehaviour:
   maxHealth: 100
   attackDamage: 10
   attackDamageMultiplier: 1
-  criticalHitChance: 1
+  criticalHitChance: 50
   criticalHitMultiplier: 1.5
   invulnerable: 0
   attackDuration: 0.2

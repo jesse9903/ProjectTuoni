@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour
@@ -13,13 +15,14 @@ public class MovementController : MonoBehaviour
     [SerializeField] private InputController inputController;
 
     private bool movementEnabled = true;
-    private Vector2 moveDirection;
+    private UnityEngine.Vector2 moveDirection;
     private float acceleration = 15f;
-    private Vector2 inputDirection;
+    private UnityEngine.Vector2 inputDirection;
     private Rigidbody2D rb2d;
-    private Vector2 velocity;
+    private UnityEngine.Vector2 velocity;
     private UnitClass unitClass;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void Awake()
     {
         // Initialize fields
@@ -29,30 +32,47 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
+        ChangeState();
+    }
+
+    private void FixedUpdate()
+    {
+        MoveCharacter();
+    }
+
+    public void MoveCharacter()
+    {
         if (movementEnabled)
+        {
+            // Move the character
+            velocity = rb2d.velocity;
+            velocity = UnityEngine.Vector2.Lerp(velocity, (inputDirection * moveSpeed) * moveSpeedMultiplier, Acceleration * Time.fixedDeltaTime);
+            rb2d.velocity = velocity;
+        }
+    }
+
+    public void ChangeState()
+    {
+         if (movementEnabled)
         {
             inputDirection = inputController.GetMoveInput(gameObject);
 
             // Change current state
             if (inputDirection.magnitude > 0)
             {
-                unitClass.CurrentState = UnitClass.UnitState.Moving;
+                List<UnitClass.UnitState> states = unitClass.CurrentStates;
+
+                // Add state to list only once
+                if (!states.Contains(UnitClass.UnitState.Moving))
+                {
+                    unitClass.CurrentState = UnitClass.UnitState.Moving;
+                    unitClass.AddToCurrentStates(UnitClass.UnitState.Moving);
+                }
             }
             else
             {
-                unitClass.CurrentState = UnitClass.UnitState.Idle;
+                unitClass.RemoveFromCurrentStates(UnitClass.UnitState.Moving);
             }
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (movementEnabled)
-        {
-            // Move the character
-            velocity = rb2d.velocity;
-            velocity = Vector2.Lerp(velocity, (inputDirection * moveSpeed) * moveSpeedMultiplier, Acceleration * Time.fixedDeltaTime);
-            rb2d.velocity = velocity;
         }
     }
 
@@ -64,11 +84,13 @@ public class MovementController : MonoBehaviour
     public void DisableMovement()
     {
         // Stop movement
-        rb2d.velocity = Vector2.zero;
+        rb2d.velocity = UnityEngine.Vector2.zero;
         
         movementEnabled = false;
     }
     
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Getters and Setters for all private variables
     public float MoveSpeedMultiplier
     {
@@ -88,7 +110,7 @@ public class MovementController : MonoBehaviour
         set => inputController = value;
     }
 
-    public Vector2 MoveDirection
+    public UnityEngine.Vector2 MoveDirection
     {
         get => moveDirection;
         set => moveDirection = value;
@@ -100,7 +122,7 @@ public class MovementController : MonoBehaviour
         set => acceleration = value;
     }
 
-    public Vector2 InputDirection
+    public UnityEngine.Vector2 InputDirection
     {
         get => inputDirection;
         set => inputDirection = value;
@@ -112,7 +134,7 @@ public class MovementController : MonoBehaviour
         set => rb2d = value;
     }
 
-    public Vector2 Velocity
+    public UnityEngine.Vector2 Velocity
     {
         get => velocity;
         set => velocity = value;

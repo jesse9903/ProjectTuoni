@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class UnitClass : MonoBehaviour, DamageableInterface
@@ -39,7 +40,8 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     [SerializeField] private Transform attackCircle;
     [SerializeField] private LayerMask enemyMask;
 
-    private UnitState currentState = UnitState.Idle;
+    private UnitState latestState = UnitState.Idle;
+    private List<UnitState> currentStates;
     private int currentHealth;
     private int previousHealth;
     private float invulnerabilityDuration;
@@ -49,6 +51,8 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     private float attackDurationLeft;
     private float attackCooldownLeft;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Start is called before the first frame update
     void Start()
     {
@@ -57,31 +61,24 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     // Update is called once per frame
     protected void Update()
     {
+        CalculateAttackTimer();
 
-        // Calculate attack duration & cooldown
-        if (canAttack == false)
+        // If there are no active states, switch state to idle
+        if (currentStates.Count == 0)
         {
-            if (attackDurationLeft > 0)
-            {
-                attackDurationLeft -= Time.deltaTime;
-            }
-            else if (attackCooldownLeft > 0)
-            {
-                attackCooldownLeft -= Time.deltaTime;
-            }
-            else
-            {
-                // FOR TESTING
-                Debug.Log("Attack enabled!");
-
-                canAttack = true;
-            }
+            latestState = UnitState.Idle;
         }
     }
 
     void Awake()
     {
-        // Get components
+        InitValues();
+        CheckValues();
+    }
+
+    private void InitValues()
+    {
+         // Get components
         rigidBody = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         unitCollider = GetComponent<Collider2D>();
@@ -89,17 +86,21 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         animationController = GetComponent<UnitAnimationController>();
         movementController = GetComponent<MovementController>();
         currentHealth = maxHealth;
+        currentStates = new List<UnitState>();
+    }
 
+    private void CheckValues()
+    {
         if (unitName == "")
         {
             unitName = gameObject.name;
         }
 
         // Check if components are assigned
-            if (rigidBody == null)
-            {
-                Debug.LogError($": Rigid body not assigned.");
-            }
+        if (rigidBody == null)
+        {
+            Debug.LogError($": Rigid body not assigned.");
+        }
         if (sprite == null)
         {
             // Debug.LogError($": Sprite not assigned.");
@@ -122,13 +123,38 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         // }
     }
 
+    private void CalculateAttackTimer()
+    {
+        // Calculate attack duration & cooldown
+        if (canAttack == false)
+        {
+            if (attackDurationLeft > 0)
+            {
+                attackDurationLeft -= Time.deltaTime;
+            }
+            else if (attackCooldownLeft > 0)
+            {
+                attackCooldownLeft -= Time.deltaTime;
+            }
+            else
+            {
+                // FOR TESTING
+                // Debug.Log("Attack enabled!");
+
+                canAttack = true;
+                currentStates.Remove(UnitState.Attacking);
+            }
+        }
+    }
+
     virtual public void TakeDamage(int dmg, Object dmgDealtBy)
     {
         if (invulnerable == false && currentHealth > 0)
         {
             previousHealth = currentHealth;
             lastDamagedBy = dmgDealtBy;
-            currentState = UnitState.TakeDamage;
+            latestState = UnitState.TakeDamage;
+            currentStates.Add(UnitState.TakeDamage);
 
             CalculateHealth(dmg);
 
@@ -141,7 +167,7 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
             else
             {
                 TakeDamageEffect();
-                currentState = UnitState.Idle;
+                currentStates.Remove(UnitState.TakeDamage);
             }
         }
 
@@ -159,11 +185,13 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
             }
 
             // FOR TESTING
-            Debug.Log("Attack disabled!");
+            // Debug.Log("Attack disabled!");
 
             attackDurationLeft = attackDuration;
             attackCooldownLeft = attackCooldown;
             canAttack = false;
+            latestState = UnitState.Attacking;
+            currentStates.Add(UnitState.Attacking);
         }
     }
 
@@ -188,7 +216,8 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
     virtual protected void OnDeath()
     {
         // Add animation and change state to dead
-        currentState = UnitState.Dead;
+        latestState = UnitState.Dead;
+        currentStates.Add(UnitState.Dead);
         rigidBody.isKinematic = true;
         movementController.DisableMovement();
 
@@ -228,8 +257,9 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
         }
 
         sprite.transform.localScale = originalScale; // Ensure exact original scale
-        //currentState = UnitState.Idle; // Return to Idle state
     }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Getters and Setters for all private variables
     public Collider2D HitBox
@@ -336,8 +366,23 @@ public abstract class UnitClass : MonoBehaviour, DamageableInterface
 
     public object CurrentState
     {
-        get => currentState;
-        set => currentState = (UnitState)value;
+        get => latestState;
+        set => latestState = (UnitState)value;
+    }
+
+    public List<UnitState> CurrentStates
+    {
+        get => currentStates;
+    }
+
+    public void AddToCurrentStates(UnitState state)
+    {
+        currentStates.Add(state);
+    }
+
+    public void RemoveFromCurrentStates(UnitState state)
+    {
+        currentStates.Remove(state);
     }
 
 }
